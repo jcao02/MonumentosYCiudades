@@ -58,7 +58,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>Debug\</IntDir>
-    <IncludePath>C:\ARToolKit\include;C:\ARToolKit\OpenVRML\include;C:\ARToolKit\OpenVRML\dependencies\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files %28x86%29\ARToolKit\include;C:\Program Files %28x86%29\ARToolKit\OpenVRML\include;C:\Program Files %28x86%29\ARToolKit\OpenVRML\dependencies\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\ARToolKit\lib;C:\ARToolKit\OpenVRML\lib;C:\ARToolKit\OpenVRML\dependencies\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -66,11 +66,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <EnablePREfast>false</EnablePREfast>
-      <AdditionalIncludeDirectories>C:\ARToolKit\lib;C:\ARToolKit\OpenVRML\lib;C:\ARToolKit\OpenVRML\dependencies\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\ARToolKit\lib;C:\Program Files %28x86%29\ARToolKit\OpenVRML\lib;C:\Program Files %28x86%29\ARToolKit\OpenVRML\dependencies\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Oriana\Documents\Visual Studio 2010\Projects\MonumentosyCiudades\MonumentosyCiudades\Debug;C:\ARToolKit\OpenVRML\dependencies\lib;C:\ARToolKit\OpenVRML\lib;C:\ARToolKit\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\ARToolKit\OpenVRML\dependencies\lib;C:\Program Files %28x86%29\ARToolKit\OpenVRML\lib;C:\Program Files %28x86%29\ARToolKit\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ws2_32.lib;opengl32.lib;glu32.lib;glut32.lib;libjpeg.lib;libpng.lib;zlib.lib;libarvrmld.lib;openvrml.lib;openvrml-gl.lib;antlr.lib;regex.lib;libARvideod.lib;libARd.lib;libARgsub_lited.lib;libARgsubd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libc.lib;libcd.lib;libcmt.lib;libcmtd.lib;msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
