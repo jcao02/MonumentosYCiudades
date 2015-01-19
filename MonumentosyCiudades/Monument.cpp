@@ -1,22 +1,21 @@
 #include "Monument.hpp"
+#include<algorithm>
 
 #define PLACES 6
-std::unordered_map<std::string, int> Monument::places;
-char *Monument::countries[] = { "Italia", "Egipto", 
-								"Chile", "Mexico", 
-								"Inglaterra", "EstadosUnidos" };
-char *Monument::cities[]    = { "Pisa", "Guiza", 
-						        "IslaDePascua", "ChitchenItza", 
-							    "Londres", "CiudadDeNuevaYork"};	
+
+char *countries_arr[] = { "Italia", "Egipto", 
+						   "Chile", "Mexico", 
+						   "Inglaterra", "EstadosUnidos" };
+
+char *cities_arr[] = { "Pisa", "Guiza", 
+					   "IslaDePascua", "ChitchenItza", 
+					   "Londres", "CiudadDeNuevaYork"};
+
+std::vector<std::string> Monument::countries(countries_arr, countries_arr + 6);
+std::vector<std::string> Monument::cities(cities_arr, cities_arr + 6);	
 
 Monument::Monument(void)
 {
-	int id, i;
-
-	for (id = 0, i = 0; i < PLACES; ++i, ++id) {
-		places[countries[i]] = id;
-		places[cities[i]] = id;
-	}
 }
 
 
@@ -25,25 +24,25 @@ Monument::~Monument(void)
 }
 
 
-bool Monument::match(std::string place1, std::string place2) {
-	return places[place1] == places[place2]; 
+bool Monument::match(char *place1, char *place2) {
+	size_t pos1, pos2;
+	if (isCountry(place1)) {
+		pos1 = std::distance(countries.begin(), find(countries.begin(), countries.end(), place1)); 
+	} else {
+		pos1 = std::distance(cities.begin(), find(cities.begin(), cities.end(), place1)); 
+	}
+
+	if (isCountry(place2)) {
+		pos2 = std::distance(countries.begin(), find(countries.begin(), countries.end(), place2)); 
+	} else {
+		pos2 = std::distance(cities.begin(), find(cities.begin(), cities.end(), place2)); 
+	}
+	return pos1 == pos2; 
 }
 
 bool Monument::isCountry(std::string place) {
-	int i; 
-
-	for (i = 0; i < PLACES; ++i) {
-		if (strcmp(place.c_str(), countries[i]) == 0) 
-			return true;
-	}
-	return false; 
+	return std::find(countries.begin(), countries.end(), place) != countries.end();
 }
 bool Monument::isCity(std::string place) {
-	int i; 
-
-	for (i = 0; i < PLACES; ++i) {
-		if (strcmp(place.c_str(), cities[i]) == 0) 
-			return true;
-	}
-	return false; 
+	return std::find(cities.begin(), cities.end(), place) != cities.end();
 }

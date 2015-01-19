@@ -7,22 +7,18 @@
 
 #include "vrml_object.hpp"
 
+typedef std::unordered_map<std::string, int> Map;
 class Monument {
 public:
 	Monument(void);
 	~Monument(void);
 
 	static void loadModels();
-	static void renderSuccess(ObjectVRML_T);
-	static void renderFailure(ObjectVRML_T);
-	static bool match(std::string place1, std::string place2);
+	static bool match(char *place1, char *place2);
 	static bool isCountry(std::string place);
 	static bool isCity(std::string place);
 private:
-	static std::unordered_map<std::string, int> places;
-	static char *countries[];
-	static char *cities[];
-	static int success;
-	static int failure; 
+	static std::vector<std::string> countries;
+	static std::vector<std::string> cities;
 };
 #endif

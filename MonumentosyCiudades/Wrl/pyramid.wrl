@@ -8641,7 +8641,7 @@ DEF scene Group
 					}
 					texture DEF Tex_1 ImageTexture
 					{
-					    url [ ".\pyramidtex.png" ] # was IID00000000183E8888 
+					    url "./pyramidtex.png"  # was IID00000000183E8888 
 					}
 				    }
 				}

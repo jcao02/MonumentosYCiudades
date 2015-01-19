@@ -1,5 +1,5 @@
 #include "Game.hpp"
-#include "Monument.hpp"
+
 
 #define VIEW_SCALEFACTOR		1.0			// 1.0 ARToolKit unit becomes 1.0 of my OpenGL units.
 #define VIEW_DISTANCE_MIN		10.0		// Objects closer to the camera than this will not be displayed.
@@ -30,6 +30,7 @@ int Game::ysize;
 int Game::thresh = 100;
 int Game::count = 0;
 User Game::user;
+Monument Game::monument; 
 
 #ifdef _WIN32
 char *Game::vconf = "Data\\WDM_camera_flipV.xml";
@@ -40,10 +41,22 @@ char *Game::vconf = "";
 char *Game::cparam_name = "Data/camera_para.dat";
 ARParam Game::cparam;
 
+#define SUCCESS_FILE "Wrl/snoman.dat"
+#define FAILURE_FILE "Wrl/littlegnome.dat"
+#define LIFE_FILE "Wrl/vida.dat"
+#define DEATH_FILE "Wrl/novida.dat"
+int Game::success;
+int Game::failure;
+int Game::life;
+int Game::death;
 static void debugReportMode(const ARGL_CONTEXT_SETTINGS_REF arglContextSettings);
 
 Game::Game(void)
 {
+	success = arVrmlLoadFile(SUCCESS_FILE);
+	failure = arVrmlLoadFile(FAILURE_FILE);
+	life    = arVrmlLoadFile(LIFE_FILE);
+	death   = arVrmlLoadFile(DEATH_FILE);
 }
 
 
@@ -183,8 +196,6 @@ void Game::mainLoop() {
 				gObjectData[i].visible = 0;
 			}
 		}
-
-		checkCollidingMarkers(gObjectData, marker_num); 
 		
 		// Tell GLUT the display has changed.
 		glutPostRedisplay();
@@ -195,22 +206,26 @@ void Game::checkCollidingMarkers(ObjectVRML_T *objects, int size) {
 	int i,j; 
 
 	for (i = 0; i < size; ++i) {
-		if (objects[i].visible == 0) continue;
-		printf("Checking %s\n", objects[i].place);
+		if (objects[i].visible == 0 || objects[i].matched == 1) continue;
 		for (j = i + 1; j < size; ++j) {
-			if (objects[j].visible == 0) continue;
-			printf("Checking %s vs %s\n", objects[i].name, objects[j].name);
+			if (objects[j].visible == 0 || objects[j].matched == 1) continue;
 			if (checkCollisions(objects[i], objects[j], COLLIDE_DIST) &&
 				Monument::match(objects[i].place, objects[j].place)) {
-
 				printf("%s and %s matched\n", objects[i].place, objects[j].place);
 				objects[i].matched = 1;
-				objects[i].matched = 1;
+				objects[j].matched = 1;
+				
 			} else {
 				printf("%s and %s didnt match\n", objects[i].place, objects[j].place);
+				int l = user.lifes();
+				if (l > 0 && objects[i].matched != -1) {
+					--l;
+					user.lifes(l);
+				}
+				
 				objects[i].matched = -1;
-				objects[i].matched = -1;
-			}
+				objects[j].matched = -1;
+							}
 		}
 	}
 }
@@ -487,7 +502,7 @@ void Game::Display(void)
 	// Lighting and geometry that moves with the camera should go here.
 	// (I.e. must be specified before viewing transformations.)
 	//none
-	
+	checkCollidingMarkers(gObjectData, gObjectDataCount); 
 	for (i = 0; i < gObjectDataCount; i++) {
 	
 		if ((gObjectData[i].visible != 0) && (gObjectData[i].vrml_id >= 0)) {
@@ -503,7 +518,40 @@ void Game::Display(void)
 				//fprintf(stderr, "About to draw object %i\n", i);
 				arVrmlDraw(gObjectData[i].vrml_id);
 			}
-		}			
+		} else if ((gObjectData[i].visible != 0) && (gObjectData[i].vrml_id < 0)) {
+
+			 if (strcmp(gObjectData[i].place, "Estatus") == 0) {
+				arglCameraViewRH(gObjectData[i].trans, m, VIEW_SCALEFACTOR);
+				glLoadMatrixd(m);
+
+				// All lighting and geometry to be drawn relative to the marker goes here.
+				//fprintf(stderr, "About to draw object %i\n", i);
+				if (user.lifes() > 0) {
+					arVrmlDraw(life);
+				} else {
+					arVrmlDraw(death);
+				}
+
+				continue;
+			}
+			if (gObjectData[i].matched == 1) {
+				printf("Matched country: %s\n", gObjectData[i].place);
+				arglCameraViewRH(gObjectData[i].trans, m, VIEW_SCALEFACTOR);
+				glLoadMatrixd(m);
+
+				// All lighting and geometry to be drawn relative to the marker goes here.
+				//fprintf(stderr, "About to draw object %i\n", i);
+				printf("%d\n", success); 
+				arVrmlDraw(success);
+			} else if (gObjectData[i].matched == -1) {
+				arglCameraViewRH(gObjectData[i].trans, m, VIEW_SCALEFACTOR);
+				glLoadMatrixd(m);
+
+				// All lighting and geometry to be drawn relative to the marker goes here.
+				//fprintf(stderr, "About to draw object %i\n", i);
+				arVrmlDraw(failure);
+			}
+		}
 	}
 	
 	// Any 2D overlays go here.
@@ -546,3 +594,11 @@ static void debugReportMode(const ARGL_CONTEXT_SETTINGS_REF arglContextSettings)
 		fprintf(stderr, "MatchingPCAMode (P)   : With PCA\n");
 	}
 }
+
+void Game::renderSuccess(ObjectVRML_T) {
+
+}
+void Game::renderFailure(ObjectVRML_T) {
+
+}
+	

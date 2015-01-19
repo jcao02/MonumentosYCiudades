@@ -29,6 +29,7 @@
 #define COLLIDE_DIST 100000.0
 
 #include "User.hpp"
+#include "Monument.hpp"
 
 
 class Game {
@@ -54,6 +55,8 @@ private:
 	static void Display(void);
 	static void checkCollidingMarkers(ObjectVRML_T *objects, int size);
 	static ARUint8 *getAndDisplayVideo();
+	static void renderSuccess(ObjectVRML_T);
+	static void renderFailure(ObjectVRML_T);
 	
 
 	/*Static members*/
@@ -76,6 +79,11 @@ private:
 
 
 	static User user;
+	static Monument monument;
+	static int success;
+	static int failure;
+	static int life;
+	static int death; 
 };
 
 #endif
