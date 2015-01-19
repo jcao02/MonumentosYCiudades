@@ -1,0 +1,4 @@
+pyramid.wrl
+100.0 -10.0 0.0		# Translation
+90.0 1.0 0.0 0.0		# Rotation
+25.0 25.0 25.0		# Scale

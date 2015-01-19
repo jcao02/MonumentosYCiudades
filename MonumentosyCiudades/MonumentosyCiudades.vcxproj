@@ -12,14 +12,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="Monument.hpp" />
     <ClInclude Include="object.hpp" />
     <ClInclude Include="User.hpp" />
+    <ClInclude Include="vrml_object.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="monuments.cpp" />
+    <ClCompile Include="Game.cpp">
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <ClCompile Include="main_program.cpp" />
+    <ClCompile Include="Monument.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="User.cpp" />
+    <ClCompile Include="vrml_object.cpp">
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
@@ -67,6 +75,7 @@
       <Optimization>Disabled</Optimization>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\ARToolKit\lib;C:\Program Files %28x86%29\ARToolKit\OpenVRML\lib;C:\Program Files %28x86%29\ARToolKit\OpenVRML\dependencies\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
