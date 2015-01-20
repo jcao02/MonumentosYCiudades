@@ -4,6 +4,7 @@
 #define VIEW_SCALEFACTOR		1.0			// 1.0 ARToolKit unit becomes 1.0 of my OpenGL units.
 #define VIEW_DISTANCE_MIN		10.0		// Objects closer to the camera than this will not be displayed.
 #define VIEW_DISTANCE_MAX		10000.0		// Objects further away from the camera than this will not be displayed.
+#define MIN_COEF				0.8	
 
 // Preferences.
 static int prefWindowed = TRUE;
@@ -190,8 +191,12 @@ void Game::mainLoop() {
 					arGetTransMatCont(&marker_info[k], gObjectData[i].trans,
 									  gObjectData[i].marker_center, gObjectData[i].marker_width,
 									  gObjectData[i].trans);
-				}
-				gObjectData[i].visible = 1;
+				}	
+				if (marker_info[k].cf > MIN_COEF) {
+					printf("%lf\n", marker_info[k].cf);
+					gObjectData[i].visible = 1;
+				} else
+					gObjectData[i].visible = 0;
 			} else {
 				gObjectData[i].visible = 0;
 			}
@@ -203,29 +208,96 @@ void Game::mainLoop() {
 }
 
 void Game::checkCollidingMarkers(ObjectVRML_T *objects, int size) {
-	int i,j; 
+	int i,j;
+	GLdouble m[16];
+	ObjectVRML_T collidingMarkers[2];
 
 	for (i = 0; i < size; ++i) {
-		if (objects[i].visible == 0 || objects[i].matched == 1) continue;
+		if (objects[i].visible == 0) continue;
+		if (strcmp(objects[i].place,"Estatus")==0) {
+			// Calculate the camera position for the object and draw it.
+			// Replace VIEW_SCALEFACTOR with 1.0 to make one drawing unit equal to 1.0 ARToolKit units (usually millimeters).
+			arglCameraViewRH(objects[i].trans, m, VIEW_SCALEFACTOR);
+			glLoadMatrixd(m);
+
+			// All lighting and geometry to be drawn relative to the marker goes here.
+			//fprintf(stderr, "About to draw object %i\n", i);
+			if (user.lifes() <= 0) 
+				arVrmlDraw(death);
+			else
+				arVrmlDraw(life);
+
+			continue;
+		}
+
+		if (user.lifes()<= 0) {
+			// Calculate the camera position for the object and draw it.
+			// Replace VIEW_SCALEFACTOR with 1.0 to make one drawing unit equal to 1.0 ARToolKit units (usually millimeters).
+			arglCameraViewRH(objects[i].trans, m, VIEW_SCALEFACTOR);
+			glLoadMatrixd(m);
+
+			// All lighting and geometry to be drawn relative to the marker goes here.
+			//fprintf(stderr, "About to draw object %i\n", i);
+			arVrmlDraw(failure);
+
+			continue;
+		}
+		
 		for (j = i + 1; j < size; ++j) {
-			if (objects[j].visible == 0 || objects[j].matched == 1) continue;
-			if (checkCollisions(objects[i], objects[j], COLLIDE_DIST) &&
-				Monument::match(objects[i].place, objects[j].place)) {
-				printf("%s and %s matched\n", objects[i].place, objects[j].place);
-				objects[i].matched = 1;
-				objects[j].matched = 1;
-				
-			} else {
-				printf("%s and %s didnt match\n", objects[i].place, objects[j].place);
-				int l = user.lifes();
-				if (l > 0 && objects[i].matched != -1) {
-					--l;
-					user.lifes(l);
+			if (objects[j].visible == 0 ||
+				!checkCollisions(objects[i], objects[j], COLLIDE_DIST) ||
+				(strcmp(objects[j].place,"Estatus")==0)) continue;
+				if (objects[i].vrml_id >= 0) {
+					collidingMarkers[0] = objects[i];
+					collidingMarkers[1] = objects[j];
+				} else {
+					collidingMarkers[0] = objects[j];
+					collidingMarkers[1] = objects[i];
 				}
-				
-				objects[i].matched = -1;
-				objects[j].matched = -1;
-							}
+
+				if (Monument::match(objects[i].place, objects[j].place)) {
+					printf("%s and %s matched\n", objects[i].place, objects[j].place);
+					objects[i].matched = 1;
+					objects[j].matched = 1;
+
+
+					// Calculate the camera position for the object and draw it.
+					// Replace VIEW_SCALEFACTOR with 1.0 to make one drawing unit equal to 1.0 ARToolKit units (usually millimeters).
+					arglCameraViewRH(collidingMarkers[0].trans, m, VIEW_SCALEFACTOR);
+					glLoadMatrixd(m);
+
+					// All lighting and geometry to be drawn relative to the marker goes here.
+					//fprintf(stderr, "About to draw object %i\n", i);
+					arVrmlDraw(collidingMarkers[0].vrml_id);
+
+					arglCameraViewRH(collidingMarkers[1].trans, m, VIEW_SCALEFACTOR);
+					glLoadMatrixd(m);
+
+					// All lighting and geometry to be drawn relative to the marker goes here.
+					//fprintf(stderr, "About to draw object %i\n", i);
+					arVrmlDraw(success);
+
+				} else {
+
+					arglCameraViewRH(collidingMarkers[1].trans, m, VIEW_SCALEFACTOR);
+					glLoadMatrixd(m);
+
+					// All lighting and geometry to be drawn relative to the marker goes here.
+					//fprintf(stderr, "About to draw object %i\n", i);
+					arVrmlDraw(failure);
+					if (!checkFailures(collidingMarkers[0].failures, collidingMarkers[1].place)) {
+						int l = user.lifes();
+						--l;
+						user.lifes(l);
+						printf("%s and %s didnt match\n", objects[i].place, objects[j].place);
+					}
+
+					strcpy(collidingMarkers[1].failures[collidingMarkers[1].last_failure],collidingMarkers[0].place);
+					strcpy(collidingMarkers[0].failures[collidingMarkers[0].last_failure],collidingMarkers[1].place);
+					++collidingMarkers[0].last_failure;
+					++collidingMarkers[1].last_failure;
+
+				}
 		}
 	}
 }
@@ -503,7 +575,7 @@ void Game::Display(void)
 	// (I.e. must be specified before viewing transformations.)
 	//none
 	checkCollidingMarkers(gObjectData, gObjectDataCount); 
-	for (i = 0; i < gObjectDataCount; i++) {
+	/*for (i = 0; i < gObjectDataCount; i++) {
 	
 		if ((gObjectData[i].visible != 0) && (gObjectData[i].vrml_id >= 0)) {
 	
@@ -552,7 +624,7 @@ void Game::Display(void)
 				arVrmlDraw(failure);
 			}
 		}
-	}
+	}*/
 	
 	// Any 2D overlays go here.
 	//none

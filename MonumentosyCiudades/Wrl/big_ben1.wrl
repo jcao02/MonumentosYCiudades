@@ -61242,7 +61242,7 @@ DEF scene Group
 					}
 					texture DEF Tex_1 ImageTexture
 					{
-					    url [ ".\texBigBen01.png" ] # was IID00000000183E8888 
+					    url ".\texture\texBigBen01.gif" # was IID00000000183E8888 
 					}
 				    }
 				}

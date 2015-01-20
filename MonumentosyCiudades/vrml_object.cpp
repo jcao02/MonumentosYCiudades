@@ -78,7 +78,13 @@ ObjectVRML_T *read_VRMLdata( char *name, int *objectnum )
 		object[i].vrml_id_orig = object[i].vrml_id;
 		object[i].visible = 0;
 		object[i].matched = 0;
+		object[i].last_failure = 0;
+		object[i].failures = (char **)malloc(sizeof(char *)*11);
         
+		for (int j=0; j<11; ++j) {
+			object[i].failures[j] = (char *)malloc(sizeof(char)*256);
+		}
+
 		printf("Loading patt %s\n", buf1);
         if ((object[i].id = arLoadPatt(buf1)) < 0) {
 			fclose(fp); free(object); return(0);
@@ -102,4 +108,14 @@ ObjectVRML_T *read_VRMLdata( char *name, int *objectnum )
     fclose(fp);
 
     return( object );
+}
+
+int checkFailures(char **failures, char *place) {
+	int i;
+
+	for (i=0; i<11; ++i) {
+		if(strcmp(failures[i],place)==0) 
+			return 1;
+	}
+	return 0;
 }

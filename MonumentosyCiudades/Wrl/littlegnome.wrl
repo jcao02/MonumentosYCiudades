@@ -10051,7 +10051,7 @@ DEF scene Group
 					}
 					texture ImageTexture
 					{
-					    url "./texture/gnome_color_texture.png" 
+					    url ".\textures\gnome_color_texture.gif"
 					}
 				    }
 				}
